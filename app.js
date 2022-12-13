@@ -1,7 +1,8 @@
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
-const Campground = require('./models/campground.js')
+const methodOverride = require('method-override');
+const Campground = require('./models/campground.js');
 
 mongoose.set('strictQuery', true); // included to suppress console warning when connecting to mongodb server
 //connecting to mongodb server
@@ -26,6 +27,7 @@ app.set('views', path.join(__dirname, 'views')); //
 //needed for POST and PUT requests to parse body
 app.use(express.urlencoded()); // recognizes the incoming request obj as strings or arrays
 app.use(express.json()); //recognizes the incoming request obj as a JSON object and parses it
+app.use(methodOverride('_method'));
 
 
 app.get('/', (req, res) => {
@@ -55,10 +57,23 @@ app.get('/campgrounds/:id', async (req, res) => {
   res.render('campgrounds/show', { campground })
 })
 
-// app.get('/campgrounds/:id/edit', (req, res) => {
-//   const campground = await Campground.findById({req.params.id})
-//   res.render('campgrounds/edit', { campground })
-// })
+app.get('/campgrounds/:id/edit', async (req, res) => {
+  const campground = await Campground.findById(req.params.id)
+  res.render('campgrounds/edit', { campground })
+})
+
+app.put('/campgrounds/:id', async (req, res) => {
+  const { id } = req.params;
+  const campground = await Campground.findByIdAndUpdate(id, {...req.body.campground})
+  res.redirect(`/campgrounds/${campground._id}`);
+})
+
+app.delete('/campgrounds/:id', async (req, res) => {
+  const { id } = req.params;
+  const campground = await Campground.findByIdAndDelete(id);
+  res.redirect('/campgrounds');
+})
+
 
 app.listen(PORT, () => {
   console.log(`Serving on PORT ${PORT}`)
