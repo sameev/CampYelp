@@ -3,7 +3,8 @@ const path = require('path');
 const mongoose = require('mongoose');
 const Campground = require('./models/campground.js')
 
-mongoose.set('strictQuery', true); // included to suppress warning
+mongoose.set('strictQuery', true); // included to suppress console warning when connecting to mongodb server
+//connecting to mongodb server
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -18,19 +19,46 @@ db.once("open", () => {
 const app = express();
 const PORT = 3000;
 
+//sets the view engine to ejs and "view" is the folder where web pages are kept
+app.set('view engine', 'ejs') 
+app.set('views', path.join(__dirname, 'views')); //
 
-app.set('view engine', 'ejs')
-app.set('views', path.join(__dirname, 'views'));
+//needed for POST and PUT requests to parse body
+app.use(express.urlencoded()); // recognizes the incoming request obj as strings or arrays
+app.use(express.json()); //recognizes the incoming request obj as a JSON object and parses it
 
 
 app.get('/', (req, res) => {
   res.render('home');
 })
 
+
 app.get('/campgrounds', async (req, res) => {
   const campgrounds = await Campground.find({});
-  res.render('campgrounds/index')
+  res.render('campgrounds/index', { campgrounds })
 })
+
+app.post('/campgrounds', async (req, res) => {
+  const campground = new Campground(req.body.campground);
+  await campground.save();
+  res.redirect(`/campgrounds/${campground._id}`);
+})
+
+
+app.get('/campgrounds/new', (req, res) => {
+  res.render('campgrounds/new');
+})
+
+
+app.get('/campgrounds/:id', async (req, res) => {
+  const campground = await Campground.findById(req.params.id);
+  res.render('campgrounds/show', { campground })
+})
+
+// app.get('/campgrounds/:id/edit', (req, res) => {
+//   const campground = await Campground.findById({req.params.id})
+//   res.render('campgrounds/edit', { campground })
+// })
 
 app.listen(PORT, () => {
   console.log(`Serving on PORT ${PORT}`)
