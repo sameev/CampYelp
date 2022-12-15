@@ -16,8 +16,8 @@ module.exports.descriptors = [
   'Sea',
   'Sky',
   'Dusty',
-  'Diamond'
-]
+  'Diamond',
+];
 
 module.exports.places = [
   'Flats',
@@ -40,5 +40,5 @@ module.exports.places = [
   'Mule Camp',
   'Hunting Camp',
   'Cliffs',
-  'Hollow'
-]
+  'Hollow',
+];
