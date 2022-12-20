@@ -35,13 +35,16 @@ app.use(methodOverride('_method')); //allows for override of method type in fron
 
 app.use(express.static(path.join(__dirname, 'public'))) // serves static files from the public directory
 
+//express route handlers
 app.use('/campgrounds', campgrounds);
 app.use('/campgrounds/:id/reviews', reviews);
 
+//root route handler
 app.get('/', (req, res) => {
   res.render('home');
 });
 
+//404 catch all route handler
 app.all('*', (req, res, next) => {
   next(new ExpressError('Page Not Found', 404));
 });
