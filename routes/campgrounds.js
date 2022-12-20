@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 const Campground = require('../models/campground.js');
-const campgroundSchema = require('../schemas')
-const ExpressError = require('../utils/ExpressError')
+const { campgroundSchema } = require('../schemas');
+const ExpressError = require('../utils/ExpressError');
 const asyncErrorWrapper = require('../utils/AsyncErrorWrapper');
 
 const validateCampground = (req, res, next) => {
