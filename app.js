@@ -9,7 +9,7 @@ const asyncErrorWrapper = require('./utils/AsyncErrorWrapper');
 const ExpressError = require('./utils/ExpressError');
 const Campground = require('./models/campground.js');
 const Review = require('./models/review.js');
-const { campgroundSchema } = require('./schemas');
+const { campgroundSchema, reviewSchema } = require('./schemas');
 
 mongoose.set('strictQuery', true); // included to suppress console warning when connecting to mongodb server
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
@@ -39,6 +39,22 @@ const validateCampground = (req, res, next) => {
   const { error } = campgroundSchema.validate(req.body);
 
   if (error) {
+    const message = error.details
+      .map((el) => {
+        return el.message;
+      })
+      .join(',');
+    throw new ExpressError(message, 400);
+  } else {
+    next();
+  }
+};
+
+const validateReview = (req, res, next) => {
+  const { error } = reviewSchema.validate(req.body);
+
+  if (error) {
+    console.log(error);
     const message = error.details
       .map((el) => {
         return el.message;
@@ -115,6 +131,7 @@ app.delete(
 
 app.post(
   '/campgrounds/:id/reviews',
+  validateReview,
   asyncErrorWrapper(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
     const review = new Review(req.body.review);
