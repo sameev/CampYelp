@@ -8,7 +8,8 @@ const methodOverride = require('method-override');
 const asyncErrorWrapper = require('./utils/AsyncErrorWrapper');
 const ExpressError = require('./utils/ExpressError');
 const Campground = require('./models/campground.js');
-const { campgroundSchema } = require('./schemas')
+const Review = require('./models/review.js');
+const { campgroundSchema } = require('./schemas');
 
 mongoose.set('strictQuery', true); // included to suppress console warning when connecting to mongodb server
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
@@ -109,6 +110,18 @@ app.delete(
     const { id } = req.params;
     const campground = await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
+  })
+);
+
+app.post(
+  '/campgrounds/:id/reviews',
+  asyncErrorWrapper(async (req, res) => {
+    const campground = await Campground.findById(req.params.id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`);
   })
 );
 
