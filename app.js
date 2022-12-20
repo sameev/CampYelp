@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
 const morgan = require('morgan');
 const methodOverride = require('method-override');
+const session = require('express-session');
 
 const ExpressError = require('./utils/ExpressError');
 const campgrounds = require('./routes/campgrounds');
@@ -33,7 +34,20 @@ app.use(express.urlencoded({ extended: true })); // recognizes the incoming requ
 app.use(express.json()); //recognizes the incoming request obj as a JSON object and parses it
 app.use(methodOverride('_method')); //allows for override of method type in front end form requests
 
-app.use(express.static(path.join(__dirname, 'public'))) // serves static files from the public directory
+app.use(express.static(path.join(__dirname, 'public'))); // serves static files from the public directory
+
+//re-configure to store in .env file
+const sessionConfig = {
+  secret: 'opensecret',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    expires: Date.now() + (1000 * 60 * 60 * 24 * 7),
+    maxAge: 1000 * 60 * 60 * 24 * 7
+  }
+}
+app.use(session(sessionConfig))
 
 //express route handlers
 app.use('/campgrounds', campgrounds);
