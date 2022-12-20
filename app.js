@@ -30,7 +30,7 @@ app.set('view engine', 'ejs'); //sets the view engine to ejs and "view" is the f
 app.set('views', path.join(__dirname, 'views')); //serves static files in the views folder
 
 //needed for POST and PUT requests to parse body
-app.use(express.urlencoded()); // recognizes the incoming request obj as strings or arrays
+app.use(express.urlencoded({ extended: true })); // recognizes the incoming request obj as strings or arrays
 app.use(express.json()); //recognizes the incoming request obj as a JSON object and parses it
 app.use(methodOverride('_method')); //allows for override of method type in front end form requests
 
