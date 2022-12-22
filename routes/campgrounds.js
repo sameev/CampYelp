@@ -36,7 +36,7 @@ router.get('/new', (req, res) => {
 router.post(
   '/',
   validateCampground,
-  asyncErrorWrapper(async (req, res, next) => {
+  asyncErrorWrapper(async (req, res) => {
     const campground = new Campground(req.body.campground);
     await campground.save();
     req.flash('success', `${campground.title} was successfully created`);
@@ -77,7 +77,7 @@ router.get(
 router.put(
   '/:id',
   validateCampground,
-  asyncErrorWrapper(async (req, res, next) => {
+  asyncErrorWrapper(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, {
       ...req.body.campground,

@@ -21,6 +21,7 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "eslint": "^8.30.0",
     "prettier": "^2.8.1"
   }
 }
