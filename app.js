@@ -10,8 +10,11 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local');
 
 const ExpressError = require('./utils/ExpressError');
-const campgrounds = require('./routes/campgrounds');
-const reviews = require('./routes/reviews');
+
+const campgroundRoutes = require('./routes/campgrounds');
+const reviewRoutes = require('./routes/reviews');
+const userRoutes = require('./routes/users');
+
 const User = require('./models/user');
 
 mongoose.set('strictQuery', true); // included to suppress console warning when connecting to mongodb server
@@ -55,8 +58,8 @@ app.use(session(sessionConfig));
 app.use(flash());
 
 app.use(passport.initialize());
-app.use(passport.session()) //needed to persistent login sessions
-passport.use(new LocalStrategy(User.authenticate()))
+app.use(passport.session()); //needed to persistent login sessions
+passport.use(new LocalStrategy(User.authenticate()));
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
@@ -67,18 +70,10 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/fakeUser', async (req, res) => {
-  const user = new User({
-    email: 'samee@gmail.coms',
-    username: 'samee'
-  })
-  const newUser = await User.register(user, 'password');
-  res.send(newUser);
-})
-
 //express route handlers
-app.use('/campgrounds', campgrounds);
-app.use('/campgrounds/:id/reviews', reviews);
+app.use('/', userRoutes);
+app.use('/campgrounds', campgroundRoutes);
+app.use('/campgrounds/:id/reviews', reviewRoutes);
 
 //root route handler
 app.get('/', (req, res) => {
