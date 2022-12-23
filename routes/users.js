@@ -17,7 +17,6 @@ router.post(
       const { username, email, password } = req.body;
       const user = new User({ email, username });
       const registeredUser = await User.register(user, password);
-      console.log(registeredUser);
       req.flash('success', `Welcome to CampersYelp, ${user.username}!`);
       res.redirect('/campgrounds');
     } catch (e) {
@@ -41,8 +40,15 @@ router.post(
     const {username} = req.body;
     req.flash('success', `welcome back, ${username}!`);
     res.redirect('/campgrounds');
-    console.log(req.body);
   }
 );
+
+router.get('/logout', (req, res, next) => {
+  req.logout( (err) => {
+    if(err) return next(err);
+    req.flash('success', 'You have logged out');
+    res.redirect('/campgrounds')
+  });
+})
 
 module.exports = router;
