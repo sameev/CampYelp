@@ -54,13 +54,10 @@ router.get(
       .populate('reviews')
       .populate('author');
 
-    console.log(campground)
-
     if (!campground) {
       req.flash('error', 'Cannot find that campground');
       res.redirect('/campgrounds');
     }
-
     res.render('campgrounds/show', { campground });
   })
 );
