@@ -1,70 +1,34 @@
 const express = require('express');
 const router = express.Router();
 
-const Campground = require('../models/campground.js');
+const asyncErrorWrapper = require('../utils/AsyncErrorWrapper');
 const {
   isLoggedIn,
   isCampgroundAuthor,
   validateCampground,
   noCampground,
 } = require('../middleware');
-const asyncErrorWrapper = require('../utils/AsyncErrorWrapper');
+const campgrounds = require('../controllers/campgrounds');
 
-router.get(
-  '/',
-  asyncErrorWrapper(async (req, res) => {
-    const campgrounds = await Campground.find({});
-    res.render('campgrounds/index', { campgrounds });
-  })
-);
+router.get('/', asyncErrorWrapper(campgrounds.index));
 
-router.get('/new', isLoggedIn, (req, res) => {
-  res.render('campgrounds/new');
-});
+router.get('/new', isLoggedIn, campgrounds.renderNewForm);
 
 router.post(
   '/',
   isLoggedIn,
   validateCampground,
-  asyncErrorWrapper(async (req, res) => {
-    const campground = new Campground(req.body.campground);
-    campground.author = req.user._id;
-    await campground.save();
-    req.flash('success', `${campground.title} was successfully created`);
-    res.redirect(`/campgrounds/${campground._id}`);
-  })
+  asyncErrorWrapper(campgrounds.createCampground)
 );
 
-router.get(
-  '/:id',
-  noCampground,
-  asyncErrorWrapper(async (req, res) => {
-    const campground = await Campground.findById(req.params.id)
-      .populate({
-        path: 'reviews',
-        populate: {
-          path: 'author',
-        },
-      })
-      .populate('author');
-    console.log(campground);
+router.get('/:id', noCampground, asyncErrorWrapper(campgrounds.showCampground));
 
-    res.render('campgrounds/show', { campground });
-  })
-);
-
-//refactor to update middleware so that trying to edit a non-existent campground response is appropriate
 router.get(
   '/:id/edit',
   isLoggedIn,
   noCampground,
   isCampgroundAuthor,
-  asyncErrorWrapper(async (req, res) => {
-    const { id } = req.params;
-    const campground = await Campground.findById(id);
-
-    res.render('campgrounds/edit', { campground });
-  })
+  asyncErrorWrapper(campgrounds.renderEditForm)
 );
 
 router.put(
@@ -72,26 +36,14 @@ router.put(
   isLoggedIn,
   isCampgroundAuthor,
   validateCampground,
-  asyncErrorWrapper(async (req, res) => {
-    const { id } = req.params;
-    const campground = await Campground.findByIdAndUpdate(id, {
-      ...req.body.campground,
-    });
-    req.flash('success', `${campground.title} was successfully updated`);
-    res.redirect(`/campgrounds/${campground._id}`);
-  })
+  asyncErrorWrapper(campgrounds.updateCampground)
 );
 
 router.delete(
   '/:id',
   isLoggedIn,
   isCampgroundAuthor,
-  asyncErrorWrapper(async (req, res) => {
-    const { id } = req.params;
-    const campground = await Campground.findById(id);
-    req.flash('success', `${campground.title} was successfully deleted`);
-    res.redirect('/campgrounds');
-  })
+  asyncErrorWrapper(campgrounds.deleteCampground)
 );
 
 module.exports = router;
