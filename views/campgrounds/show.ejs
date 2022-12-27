@@ -27,51 +27,54 @@
   </div>
 
   <div class="col-6">
-    <h2>Leave a Review</h2>
+    <% if(currentUser) {%>
+      <h2>Leave a Review</h2>
 
-    <form action="/campgrounds/<%= campground._id%>/reviews" method="POST" class="mb-3 validated-form" novalidate>
-      <div class="mb-3">
-        <label for="rating" class="form-label">Rating</label>
-        <input type="range" min="1" max="5" class="form-range" name="review[rating]" id="rating">
-      </div>
-      
-      <div class="mb-3">
-        <label for="title" class="form-label">Title</label>
-        <input type="text" class="form-control" name="review[title]" id="title" required>
-        <div class="valid-feedback">
-          Looks good!
+      <form action="/campgrounds/<%= campground._id%>/reviews" method="POST" class="mb-3 validated-form" novalidate>
+        <div class="mb-3">
+          <label for="rating" class="form-label">Rating</label>
+          <input type="range" min="1" max="5" class="form-range" name="review[rating]" id="rating">
         </div>
-        <div class="invalid-feedback">
-          Please enter a valid title.
+        
+        <div class="mb-3">
+          <label for="title" class="form-label">Title</label>
+          <input type="text" class="form-control" name="review[title]" id="title" required>
+          <div class="valid-feedback">
+            Looks good!
+          </div>
+          <div class="invalid-feedback">
+            Please enter a valid title.
+          </div>
         </div>
-      </div>
-      
-      <div class="mb-3">
-        <label class="form-label" for="body">Review</label>
-        <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
-        <div class="valid-feedback">
-          Looks good!
+        
+        <div class="mb-3">
+          <label class="form-label" for="body">Review</label>
+          <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
+          <div class="valid-feedback">
+            Looks good!
+          </div>
+          <div class="invalid-feedback">
+            Please enter a valid review.
+          </div>
         </div>
-        <div class="invalid-feedback">
-          Please enter a valid review.
-        </div>
-      </div>
 
-      <button class="btn btn-success">Submit Review</button>
-    </form>
+        <button class="btn btn-success">Submit Review</button>
+      </form>
+    <% } %>
 
     <% for(let review of campground.reviews) { %>
       <div class="card mb-3">
-        <div class="mb-3 card-body">
+        <div class="card-body">
           <h5 class="card-title"><%= review.title %></h5>
-          <p class="card-text">Rating:  <%= review.rating %></p>
+          <h6 class="card-subtitle mb-2 text-muted">Reviewer: <%= review.author.username %></h6>
+          <h6 class="card-subtitle mb-2 text-muted">Rating: <%= review.rating %></h6>
           <p class="card-text"><%= review.body %></p>
-        </div>
 
-        <div class="mb-3 card-body">
-          <form action="/campgrounds/<%= campground._id%>/reviews/<%= review._id%>?_method=DELETE" method="POST">
-            <button class="btn btn-sm btn-danger">Delete</button>
-          </form>
+          <% if(currentUser && review.author.equals(currentUser._id)) { %>
+            <form action="/campgrounds/<%= campground._id%>/reviews/<%= review._id%>?_method=DELETE" method="POST">
+              <button class="btn btn-sm btn-danger">Delete</button>
+            </form>
+          <% } %>
         </div>
       </div>
     <% } %>

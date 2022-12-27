@@ -2,7 +2,12 @@ const express = require('express');
 const router = express.Router();
 
 const Campground = require('../models/campground.js');
-const { isLoggedIn, isAuthor, validateCampground, noCampground } = require('../middleware');
+const {
+  isLoggedIn,
+  isCampgroundAuthor,
+  validateCampground,
+  noCampground,
+} = require('../middleware');
 const asyncErrorWrapper = require('../utils/AsyncErrorWrapper');
 
 router.get(
@@ -35,8 +40,14 @@ router.get(
   noCampground,
   asyncErrorWrapper(async (req, res) => {
     const campground = await Campground.findById(req.params.id)
-      .populate('reviews')
+      .populate({
+        path: 'reviews',
+        populate: {
+          path: 'author',
+        },
+      })
       .populate('author');
+    console.log(campground);
 
     res.render('campgrounds/show', { campground });
   })
@@ -47,7 +58,7 @@ router.get(
   '/:id/edit',
   isLoggedIn,
   noCampground,
-  isAuthor,
+  isCampgroundAuthor,
   asyncErrorWrapper(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
@@ -59,7 +70,7 @@ router.get(
 router.put(
   '/:id',
   isLoggedIn,
-  isAuthor,
+  isCampgroundAuthor,
   validateCampground,
   asyncErrorWrapper(async (req, res) => {
     const { id } = req.params;
@@ -74,7 +85,7 @@ router.put(
 router.delete(
   '/:id',
   isLoggedIn,
-  isAuthor,
+  isCampgroundAuthor,
   asyncErrorWrapper(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);

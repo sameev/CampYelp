@@ -6,16 +6,18 @@ const router = express.Router({
 const Campground = require('../models/campground.js');
 const Review = require('../models/review.js');
 const asyncErrorWrapper = require('../utils/AsyncErrorWrapper');
-const { validateReview } = require('../middleware');
+const { validateReview, isLoggedIn, isReviewAuthor } = require('../middleware');
 
 router.post(
   '/',
+  isLoggedIn,
   validateReview,
   asyncErrorWrapper(async (req, res) => {
     const { id } = req.params;
 
     const campground = await Campground.findById(id);
     const review = new Review(req.body.review);
+    review.author = req.user._id;
     campground.reviews.push(review);
     await review.save();
     await campground.save();
@@ -26,6 +28,8 @@ router.post(
 
 router.delete(
   '/:reviewId',
+  isLoggedIn,
+  isReviewAuthor,
   asyncErrorWrapper(async (req, res) => {
     const { id, reviewId } = req.params;
     await Campground.findByIdAndUpdate(id, {
