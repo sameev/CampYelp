@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+
 const asyncErrorWrapper = require('../utils/AsyncErrorWrapper');
 const {
   isLoggedIn,
@@ -13,15 +16,20 @@ const campgrounds = require('../controllers/campgrounds');
 router
   .route('/')
   .get(asyncErrorWrapper(campgrounds.index))
-  .post(
-    isLoggedIn,
-    validateCampground,
-    asyncErrorWrapper(campgrounds.createCampground)
-  );
+  .post(upload.array('image'), (req, res) => {
+    console.log(req.body, req.files);
+    res.send('it worked');
+  });
+// .post(
+//   isLoggedIn,
+//   validateCampground,
+//   asyncErrorWrapper(campgrounds.createCampground)
+// );
 
 router.get('/new', isLoggedIn, campgrounds.renderNewForm);
 
-router.route('/:id')
+router
+  .route('/:id')
   .get(noCampground, asyncErrorWrapper(campgrounds.showCampground))
   .put(
     isLoggedIn,
@@ -33,7 +41,7 @@ router.route('/:id')
     isLoggedIn,
     isCampgroundAuthor,
     asyncErrorWrapper(campgrounds.deleteCampground)
-  )
+  );
 
 router.get(
   '/:id/edit',
@@ -42,6 +50,5 @@ router.get(
   isCampgroundAuthor,
   asyncErrorWrapper(campgrounds.renderEditForm)
 );
-
 
 module.exports = router;
