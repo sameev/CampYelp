@@ -42,11 +42,6 @@
       </div>
 
       <div class="mb-3">
-        <label for="image" class="mb-1">Upload Image</label> <br>
-        <input type="file" name="image" id="image" multiple>
-      </div>
-
-      <div class="mb-3">
         <label for="description" class="form-label">Description</label>
         <textarea type="text" class="form-control" id="description" name="campground[description]" required></textarea>
         <div class="valid-feedback">
@@ -55,6 +50,15 @@
         <div class="invalid-feedback">
           Please enter a valid description.
         </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Upload Images</label>
+        <div class="form-file custom-file">
+          <input class="form-control custome-file-input" type="file" id="image" name="image" onchange="imagePreview(event)" multiple>
+          <label for="image" class="form-label custome-file-label"></label>
+        </div>
+        <div id="formFile"></div>
       </div>
 
       <div class="mb-3">
