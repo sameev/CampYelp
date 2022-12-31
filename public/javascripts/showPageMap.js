@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 mapboxgl.accessToken = mapToken;
 
 const map = new mapboxgl.Map({
