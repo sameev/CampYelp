@@ -54,13 +54,27 @@
         </div>
       </div>
 
-      <div class="mb-3">
+      <div class="">
         <label class="form-label">Upload Images</label>
         <div class="form-file custom-file">
-          <input class="form-control custome-file-input" type="file" id="image" name="image" onchange="imagePreview(event)" multiple>
+          <input class="form-control custome-file-input" type="file" id="image" name="image" multiple>
           <label for="image" class="form-label custome-file-label"></label>
         </div>
-        <div id="formFile"></div>
+      </div>
+
+      <div class="form-label">Delete Images: </div>
+      <div class="row row-cols-1 row-cols-md-4 g-4 mb-3">
+        <% campground.images.forEach( (image, idx) => { %>
+          <div class="col">
+            <div class="card">
+              <img class="card-img" src="<%= image.url %>" alt="">
+              <div class="card-img-overlay text-end pt-1 pe-2">
+                <label for="image-<%= idx %>" class="visually-hidden">Delete Image</label>
+                <input type="checkbox" class="form-check-input" name="deleteImages[]" value="<%= image.filename %>" id="image-<%= idx %>">
+              </div>
+            </div>
+          </div>
+        <% }) %>
       </div>
 
       <button class="btn btn-success mb-3">Update Campground</button>
