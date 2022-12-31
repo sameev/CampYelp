@@ -4,6 +4,10 @@ const { places, descriptors } = require('./seedHelpers');
 
 const Campground = require('../models/campground.js');
 
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const mapBoxToken = 'pk.eyJ1IjoiZWVtYXMxOTkxIiwiYSI6ImNsY2I5Z3luODM5eHUzeGxreDRzaGRoNTQifQ.J1IGOdc4dyWLUWxhiaC6Hg'
+const geocoder = mbxGeocoding({ accessToken: mapBoxToken });
+
 mongoose.set('strictQuery', true); // included to suppress warning
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
   useNewUrlParser: true,
@@ -25,10 +29,19 @@ const seedDB = async () => {
 
   for (let i = 0; i < 50; i++) {
     const random1000 = Math.floor(Math.random() * 1000);
-    const price = Math.floor(Math.random() * 20) +10;
+    const price = Math.floor(Math.random() * 20) + 10;
+    const location = `${cities[random1000].city}, ${cities[random1000].state}`;
+
+    const geoData = await geocoder
+      .forwardGeocode({
+        query: location,
+        limit: 1,
+      })
+      .send();
+
     const camp = new Campground({
       author: '63a6177809320f7e0c526d94',
-      location: `${cities[random1000].city}, ${cities[random1000].state}`,
+      location,
       title: `${sample(descriptors)} ${sample(places)}`,
       images: [
         {
@@ -42,10 +55,12 @@ const seedDB = async () => {
         {
           url: 'https://res.cloudinary.com/dgbjjb2cw/image/upload/v1672275443/yelpCamp/mddbdr9dvkrel5xn6k6p.jpg',
           filename: 'yelpCamp/mddbdr9dvkrel5xn6k6p',
-        }
+        },
       ],
-      description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus, illum? Explicabo totam nulla, laudantium dolores aperiam, ipsum aliquid accusantium quaerat ex dolorum impedit exercitationem minima deserunt dignissimos eveniet iure nostrum!',
-      price
+      description:
+        'Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus, illum? Explicabo totam nulla, laudantium dolores aperiam, ipsum aliquid accusantium quaerat ex dolorum impedit exercitationem minima deserunt dignissimos eveniet iure nostrum!',
+      price,
+      geometry: geoData.body.features[0].geometry,
     });
 
     await camp.save();
