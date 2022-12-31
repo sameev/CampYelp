@@ -51,6 +51,9 @@
   </div>
 
   <div class="col-6">
+
+    <div id='map' style='width: 400px; height: 300px;' class="mb-3 d-flex justify-content-center"></div>
+
     <% if(currentUser) {%>
       <h2>Leave a Review</h2>
 
@@ -118,3 +121,9 @@
     <% } %>
   </div>
 </div>
+
+<script>
+  const mapToken = '<%-process.env.MAPBOX_TOKEN%>';
+</script>
+
+<script src="/javascripts/showPageMap.js"></script>
