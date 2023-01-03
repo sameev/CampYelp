@@ -9,6 +9,7 @@ const ejsMate = require('ejs-mate');
 // const morgan = require('morgan');
 const methodOverride = require('method-override');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
@@ -22,11 +23,10 @@ const userRoutes = require('./routes/users');
 
 const User = require('./models/user');
 
-// const dbUrl = process.env.DB_URL
-// 'mongodb://localhost:27017/yelp-camp'
+const dbUrl = 'mongodb://localhost:27017/yelp-camp';
 
 mongoose.set('strictQuery', true); // included to suppress console warning when connecting to mongodb server
-mongoose.connect('mongodb://localhost:27017/yelp-camp', {
+mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }); //connecting to mongodb server
@@ -53,8 +53,19 @@ app.use(express.static(path.join(__dirname, 'public'))); // serves static files 
 
 app.use(mongoSanitize()); //prevents any query/params/body with potentially harmful mongo scripts (i.e. includes $)
 
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  secret: 'opensecret',
+  touchAfter: 60 * 60 * 24,
+});
+
+store.on('error', (err) => {
+  console.log('SESSION STORE ERROR: ', err);
+});
+
 //re-configure to store in .env file
 const sessionConfig = {
+  store,
   name: 'campers_yelp_session',
   secret: 'opensecret',
   resave: false,
