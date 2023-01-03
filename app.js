@@ -22,6 +22,9 @@ const userRoutes = require('./routes/users');
 
 const User = require('./models/user');
 
+// const dbUrl = process.env.DB_URL
+// 'mongodb://localhost:27017/yelp-camp'
+
 mongoose.set('strictQuery', true); // included to suppress console warning when connecting to mongodb server
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
   useNewUrlParser: true,
