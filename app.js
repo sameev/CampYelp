@@ -12,6 +12,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+const mongoSanitize = require('express-mongo-sanitize');
 
 const ExpressError = require('./utils/ExpressError');
 
@@ -46,6 +47,8 @@ app.use(express.json()); //recognizes the incoming request obj as a JSON object 
 app.use(methodOverride('_method')); //allows for override of method type in front end form requests
 
 app.use(express.static(path.join(__dirname, 'public'))); // serves static files from the public directory
+
+app.use(mongoSanitize()); //prevents any query/params/body with potentially harmful mongo scripts (i.e. includes $)
 
 //re-configure to store in .env file
 const sessionConfig = {
