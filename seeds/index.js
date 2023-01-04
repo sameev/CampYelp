@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
 const mongoose = require('mongoose');
 const cities = require('./cities');
 const { places, descriptors } = require('./seedHelpers');
@@ -5,11 +9,14 @@ const { places, descriptors } = require('./seedHelpers');
 const Campground = require('../models/campground.js');
 
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
-const mapBoxToken = 'pk.eyJ1IjoiZWVtYXMxOTkxIiwiYSI6ImNsY2I5Z3luODM5eHUzeGxreDRzaGRoNTQifQ.J1IGOdc4dyWLUWxhiaC6Hg'
+const mapBoxToken =
+  'pk.eyJ1IjoiZWVtYXMxOTkxIiwiYSI6ImNsY2I5Z3luODM5eHUzeGxreDRzaGRoNTQifQ.J1IGOdc4dyWLUWxhiaC6Hg';
 const geocoder = mbxGeocoding({ accessToken: mapBoxToken });
 
+const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/yelp-camp';
+
 mongoose.set('strictQuery', true); // included to suppress warning
-mongoose.connect('mongodb://localhost:27017/yelp-camp', {
+mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -40,7 +47,9 @@ const seedDB = async () => {
       .send();
 
     const camp = new Campground({
-      author: '63a6177809320f7e0c526d94',
+      author: '63b4b4a3a1872234cd73f5b0',
+      // dev: '63a6177809320f7e0c526d94',
+      // prod: '63b4b4a3a1872234cd73f5b0',
       location,
       title: `${sample(descriptors)} ${sample(places)}`,
       images: [
@@ -68,5 +77,6 @@ const seedDB = async () => {
 };
 
 seedDB().then(() => {
+  console.log('Database Closing...');
   mongoose.connection.close();
 });
