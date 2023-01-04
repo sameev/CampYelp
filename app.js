@@ -23,7 +23,8 @@ const userRoutes = require('./routes/users');
 
 const User = require('./models/user');
 
-const dbUrl = 'mongodb://localhost:27017/yelp-camp';
+const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/yelp-camp';
+const secret = process.env.SECRET || 'opensecret';
 
 mongoose.set('strictQuery', true); // included to suppress console warning when connecting to mongodb server
 mongoose.connect(dbUrl, {
@@ -55,7 +56,7 @@ app.use(mongoSanitize()); //prevents any query/params/body with potentially harm
 
 const store = MongoStore.create({
   mongoUrl: dbUrl,
-  secret: 'opensecret',
+  secret,
   touchAfter: 60 * 60 * 24,
 });
 
@@ -67,7 +68,7 @@ store.on('error', (err) => {
 const sessionConfig = {
   store,
   name: 'campers_yelp_session',
-  secret: 'opensecret',
+  secret,
   resave: false,
   saveUninitialized: true,
   cookie: {
